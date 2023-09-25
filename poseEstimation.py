@@ -58,7 +58,8 @@ if cap.isOpened():
     print(width,height)
 
 frame_no=0
-angle_arr=[]
+angle_arr1=[]
+angle_arr2=[]
 with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
             ret,frame =cap.read()
@@ -76,35 +77,40 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                 landmarks= results.pose_landmarks.landmark
                 left_shoulder=np.array([landmarks[11].x,landmarks[11].y])
                 right_shoulder=np.array([landmarks[12].x,landmarks[12].y])
-                left_hip=[landmarks[23].x,landmarks[23].y]
-                right_hip=[landmarks[24].x,landmarks[24].y]
+                left_hip=np.array([landmarks[23].x,landmarks[23].y])
+                right_hip=np.array([landmarks[24].x,landmarks[24].y])
                 left_knee=np.array([landmarks[25].x,landmarks[25].y])
-                right_knee=[landmarks[26].x,landmarks[26].y]
+                right_knee=np.array([landmarks[26].x,landmarks[26].y])
                 left_ankle=np.array([landmarks[27].x,landmarks[27].y])
-                right_ankle=[landmarks[28].x,landmarks[28].y]
+                right_ankle=np.array([landmarks[28].x,landmarks[28].y])
                 #print(left_shoulder,left_shoulder-[0.100,0])
-                angle=None
+                angle1=None
+                angle2=None
                 try:
-                    angle=calculate_angle(left_knee,left_ankle,left_ankle-[0.100,0])
-                    angle_arr.append(angle)
+                    angle1=calculate_angle(left_knee,left_ankle,left_ankle-[0.100,0])
+                    angle2=calculate_angle(left_shoulder,left_hip,left_hip-[0.100,0])
+                    #print(angle2)
+                    angle_arr1.append(angle1)
+                    angle_arr2.append(angle2)
                     frame_no+=1
                     if(frame_no==30):
-                        print(len(angle_arr))
-                        rate=central_difference_rate(angle_arr)
+                        rate1=central_difference_rate(angle_arr1)
+                        rate2=central_difference_rate(angle_arr2)
                         frame_no=0
-                        angle_arr=[]
-                        print(rate)
-                        if(abs(rate)>1.5):
+                        angle_arr1=[]
+                        angle_arr2=[]
+                        print(rate2)
+                        if(abs(rate1)>1.5 and abs(rate2)>0.7):
                             print('Fall Dectected')
                             break
 
                     
-                    cv2.putText(image,str(angle), tuple(np.multiply(right_shoulder,[width,height]).astype(int)),
+                    cv2.putText(image,str(angle2), tuple(np.multiply(right_shoulder,[width,height]).astype(int)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0,0,0), 1)
                 except Exception as e:
                     print(e)
                 try:
-                    y_value = float(angle)
+                    y_value = float(angle1)
                     x_data.append(len(x_data) + 1)  # Increment X-value
                     y_data.append(y_value)
                     line.set_xdata(x_data)
