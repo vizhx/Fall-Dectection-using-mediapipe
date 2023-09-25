@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def central_difference_rate(y):
     x=range(1,31)
     n = len(x)
-    table = [[0] * n for _ in range(n)]
+    table = [[0] * 6 for _ in range(n)]
     for i in range(n):
         table[i][0] = y[i]
 
