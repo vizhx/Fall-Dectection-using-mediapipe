@@ -2,6 +2,12 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
+import socket
+
+
+
+
+
 
 def central_difference_rate(y):
     x=range(1,31)
@@ -35,6 +41,17 @@ def calculate_angle(a,b,c):
 
 mp_drawing =mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
+
+host = '0.0.0.0' 
+port = 12345 
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+server_socket.bind((host, port))
+
+print(f"Server listening on {host}:{port}")
+
+
 
 x_data = []
 y_data = []
@@ -93,6 +110,10 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                     angle_arr1.append(angle1)
                     angle_arr2.append(angle2)
                     frame_no+=1
+                    data,address = server_socket.recvfrom(1024)
+                    print("Received from {}: {}".format(address,data.decode('utf-8')))
+                        
+
                     if(frame_no==30):
                         rate1=central_difference_rate(angle_arr1)
                         rate2=central_difference_rate(angle_arr2)
@@ -130,3 +151,5 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                 break
     cap.release()
     cv2.destroyAllWindows()
+client_socket.close()
+server_socket.close()
