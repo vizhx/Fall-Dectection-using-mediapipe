@@ -10,13 +10,13 @@ import socket
 
 
 def central_difference_rate(y):
-    x=range(1,31)
+    x=range(1,16)
     n = len(x)
     table = [[0] * 6 for _ in range(n)]
     for i in range(n):
         table[i][0] = y[i]
 
-    for j in range(1, n):
+    for j in range(1, 6):
         for i in range(n - j):
             table[i][j] = table[i + 1][j - 1] - table[i][j - 1]
 
@@ -46,7 +46,7 @@ host = '0.0.0.0'
 port = 12345 
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+server_socket.setblocking(False)
 server_socket.bind((host, port))
 
 print(f"Server listening on {host}:{port}")
@@ -66,7 +66,7 @@ ax.set_ylabel('Y-axis')
 ax.set_title('Dynamic Graph')
 ax.set_ylim(0, 100)
 
-cap=cv2.VideoCapture("D:\\Capstone Project\\Videos\\fall-03-cam0.mp4")
+cap=cv2.VideoCapture(1)
 if cap.isOpened():
     fps=int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -77,7 +77,7 @@ if cap.isOpened():
 frame_no=0
 angle_arr1=[]
 angle_arr2=[]
-with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as pose:
+with mp_pose.Pose(min_detection_confidence=0.7,min_tracking_confidence=0.5) as pose:
     while cap.isOpened():
             ret,frame =cap.read()
 
@@ -110,18 +110,20 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                     angle_arr1.append(angle1)
                     angle_arr2.append(angle2)
                     frame_no+=1
-                    data,address = server_socket.recvfrom(1024)
-                    print("Received from {}: {}".format(address,data.decode('utf-8')))
-                        
+                    try:
+                        data,address = server_socket.recvfrom(1024)
+                        print("Received from {}: {}".format(address,data.decode('utf-8')))
+                    except:
+                        print("value not received from sensor")
 
-                    if(frame_no==30):
+                    if(frame_no==15):
                         rate1=central_difference_rate(angle_arr1)
                         rate2=central_difference_rate(angle_arr2)
                         frame_no=0
                         angle_arr1=[]
                         angle_arr2=[]
-                        print(rate2)
-                        if(abs(rate1)>1.5 and abs(rate2)>0.7):
+                        print(rate1,rate2)
+                        if(abs(rate1)>3 and abs(rate2)>5):
                             print('Fall Dectected')
                             break
 
@@ -140,7 +142,7 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                     ax.autoscale_view()
                     fig.canvas.flush_events()
                 except ValueError:
-                    print("Angle not valid")
+                    print("angle not valid")
             except:
                 pass
 
@@ -151,5 +153,5 @@ with mp_pose.Pose(min_detection_confidence=0.2,min_tracking_confidence=0.5) as p
                 break
     cap.release()
     cv2.destroyAllWindows()
-client_socket.close()
+
 server_socket.close()
