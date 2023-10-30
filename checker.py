@@ -1,24 +1,19 @@
-def central_difference_rate(y):
-    x=range(1,31)
-    n = len(x)
-    table = [[0] * 6 for _ in range(n)]
-    for i in range(n):
-        table[i][0] = y[i]
+import socket
+import cv2
+import time
+host = '0.0.0.0' 
+port = 12345 
 
-    for j in range(1, 6):
-        for i in range(n - j):
-            table[i][j] = table[i + 1][j - 1] - table[i][j - 1]
-
-    k=int(len(x)/2)
-    for row in table:
-        print(row)
-    h=x[1]-x[0]
-    rate=1/h*((table[k][1]+table[k-1][1])/2-1/12*(table[k-1][3]+table[k-2][3])+1/60*(table[k-2][5]+table[k-3][5]))
-    return rate
-
-arr=[3*i*i for i in range(1,31)]
-f=1
-f+=2
-if(f==3):
-    print(f)
-print(central_difference_rate(arr))
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.setblocking(False)
+server_socket.bind((host, port))
+print('connected')
+while True:
+    try:
+        data,address = server_socket.recvfrom(1024)
+        print("Received from {}: {}".format(address,data.decode('utf-8')))
+    except:
+        print("value not received from sensor")
+    time.sleep(0.05)
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+                break

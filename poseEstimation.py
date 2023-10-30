@@ -7,8 +7,6 @@ import socket
 
 
 
-
-
 def central_difference_rate(y):
     x=range(1,16)
     n = len(x)
@@ -53,14 +51,15 @@ print(f"Server listening on {host}:{port}")
 
 
 
-x_data = []
-y_data = []
+x_data = list(range(1,41))
+y1_data = [None] * 40
+y2_data = [None] * 40
 
 # Create an initial empty plot
 plt.ion()  # Turn on interactive mode
 fig, ax = plt.subplots()
-line, = ax.plot(x_data, y_data)
-
+line1, = ax.plot(x_data, y1_data)
+line2, = ax.plot(x_data, y2_data)
 ax.set_xlabel('X-axis')
 ax.set_ylabel('Y-axis')
 ax.set_title('Dynamic Graph')
@@ -134,15 +133,22 @@ with mp_pose.Pose(min_detection_confidence=0.7,min_tracking_confidence=0.5) as p
                     print(e)
                 try:
                     y_value = float(angle1)
-                    x_data.append(len(x_data) + 1)  # Increment X-value
-                    y_data.append(y_value)
-                    line.set_xdata(x_data)
-                    line.set_ydata(y_data)
+                    y1_data.append(y_value)
+                    y2_data.append(float(angle2))
+                    if len(y1_data)>40:
+                        y1_data.pop(0)
+                        y2_data.pop(0)
+                    #x_data.append(len(x_data) + 1)  # Increment X-value
+                    
+                    line1.set_xdata(x_data)
+                    line1.set_ydata(y1_data)
+                    line2.set_xdata(x_data)
+                    line2.set_ydata(y2_data)
                     ax.relim()
                     ax.autoscale_view()
                     fig.canvas.flush_events()
-                except ValueError:
-                    print("angle not valid")
+                except Exception as e:
+                    print(e)
             except:
                 pass
 
