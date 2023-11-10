@@ -58,14 +58,15 @@ y2_data = [None] * 40
 # Create an initial empty plot
 plt.ion()  # Turn on interactive mode
 fig, ax = plt.subplots()
-line1, = ax.plot(x_data, y1_data)
-line2, = ax.plot(x_data, y2_data)
-ax.set_xlabel('X-axis')
-ax.set_ylabel('Y-axis')
+leg_angle, = ax.plot(x_data, y1_data,color="darkred", label="leg")
+hip_angle, = ax.plot(x_data, y2_data,color="darkgreen",label="hip")
+plt.legend()
+ax.set_xlabel('Time ->')
+ax.set_ylabel('Angle')
 ax.set_title('Dynamic Graph')
 ax.set_ylim(0, 100)
 
-cap=cv2.VideoCapture(1)
+cap=cv2.VideoCapture(0)
 if cap.isOpened():
     fps=int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -140,10 +141,10 @@ with mp_pose.Pose(min_detection_confidence=0.7,min_tracking_confidence=0.5) as p
                         y2_data.pop(0)
                     #x_data.append(len(x_data) + 1)  # Increment X-value
                     
-                    line1.set_xdata(x_data)
-                    line1.set_ydata(y1_data)
-                    line2.set_xdata(x_data)
-                    line2.set_ydata(y2_data)
+                    leg_angle.set_xdata(x_data)
+                    leg_angle.set_ydata(y1_data)
+                    hip_angle.set_xdata(x_data)
+                    hip_angle.set_ydata(y2_data)
                     ax.relim()
                     ax.autoscale_view()
                     fig.canvas.flush_events()
