@@ -66,12 +66,12 @@ ax.set_ylabel('Angle')
 ax.set_title('Dynamic Graph')
 ax.set_ylim(0, 100)
 
-cap=cv2.VideoCapture(0)
+cap=cv2.VideoCapture(1)
 if cap.isOpened():
     fps=int(cap.get(cv2.CAP_PROP_FPS))
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(fps)
+    print(fps)=0
     print(width,height)
 
 frame_no=0
